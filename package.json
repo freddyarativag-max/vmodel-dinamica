@@ -17,3 +17,10 @@
     "vite": "^5.4.0"
   }
 }
+
+btoa(JSON.stringify({
+  "req-sis":"t-acep",
+  "req-sw":"t-sis",
+  "dis-arq":"t-int",
+  "dis-mod":"t-unit"
+}))
