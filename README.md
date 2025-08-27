@@ -1,36 +1,3 @@
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dinámica Modelo en V</title>
-    <link rel="icon" href="data:," />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
-</html>
-
-{
-  "name": "vmodel-dinamica",
-  "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.0",
-    "vite": "^5.4.0"
-  }
-}
 # Dinámica interactiva: Modelo en V (multi-equipo)
 
 App web para actividades de aula (virtual/presencial) donde equipos arrastran tarjetas y emparejan fases ↔ pruebas del Modelo en V.
@@ -67,7 +34,3 @@ App web para actividades de aula (virtual/presencial) donde equipos arrastran ta
 
 ---
 © Actividad educativa — Modelo en V
-
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-export default defineConfig({ plugins: [react()] })
