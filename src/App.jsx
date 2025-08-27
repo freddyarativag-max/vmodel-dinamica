@@ -1,5 +1,12 @@
 import React, { useMemo, useState, useEffect } from 'react'
 
+/**
+ * App: Dinámica del Modelo en V (arrastrar y soltar) — Versión 1.1
+ * - Sin respuestas quemadas en el código.
+ * - El mapa de validación se pasa por URL como Base64: ?map=... (JSON codificado).
+ *   Ej: btoa(JSON.stringify({ "req-sis":"t-acep","req-sw":"t-sis","dis-arq":"t-int","dis-mod":"t-unit" }))
+ */
+
 const LEFT_PHASES = [
   { id: 'req-sis', label: 'Requerimientos del sistema' },
   { id: 'req-sw', label: 'Requisitos de software' },
@@ -15,6 +22,17 @@ const RIGHT_TESTS = [
   { id: 't-acep', label: 'Pruebas de aceptación' },
 ]
 
+// Lee ?map=... desde la URL (Base64 → JSON). Si no existe, retorna null (modo estudiante).
+function parseMapParam() {
+  try {
+    const b64 = new URLSearchParams(location.search).get('map')
+    if (!b64) return null
+    const json = atob(b64)
+    return JSON.parse(json) // { "req-sis":"t-acep", ... }
+  } catch (e) {
+    console.warn("No se pudo leer el parámetro 'map'", e)
+    return null
+  }
 }
 
 const SCENARIOS = [
@@ -39,7 +57,7 @@ function Card({id,label}){
 
 const LABELS = [...LEFT_PHASES, ...RIGHT_TESTS].reduce((acc, x)=>{ acc[x.id]=x.label; return acc }, {})
 
-function Slot({id,label,placement,setPlacement,validated}){
+function Slot({id,label,placement,setPlacement,validated,answerMap}){
   const cardId = placement[id]
   const onDrop = (e)=>{
     e.preventDefault()
@@ -52,7 +70,7 @@ function Slot({id,label,placement,setPlacement,validated}){
     setPlacement(next)
   }
   const onDragOver = (e)=>e.preventDefault()
-  const isOk = validated && cardId===id
+  const isOk = validated && !!answerMap && cardId===id // solo marca ok si hay mapa (modo docente)
   return (
     <div className={'slot'+(isOk?' ok':'')} onDrop={onDrop} onDragOver={onDragOver}>
       {cardId ? <Card id={cardId} label={LABELS[cardId]}/> : <span className="small">{label}</span>}
@@ -97,6 +115,7 @@ function Board({team, initialScenario}){
 
   const left=LEFT_PHASES.map(x=>x.id)
   const right=RIGHT_TESTS.map(x=>x.id)
+  const answerMap = useMemo(()=>parseMapParam(), [])
   const scenarioObj = SCENARIOS.find(s=>s.id===scenario)
 
   function reset(reshuffle=false){
@@ -106,8 +125,12 @@ function Board({team, initialScenario}){
   }
 
   function validate(){
+    if(!answerMap){
+      alert("Validación protegida: agrega ?map=... (Base64) en la URL para habilitar la corrección (solo docente).")
+      return
+    }
     let pts=0
-    Object.entries(CORRECT_MAP).forEach(([phaseId,testId])=>{
+    Object.entries(answerMap).forEach(([phaseId,testId])=>{
       if(placement[phaseId]===phaseId && placement[testId]===testId) pts+=1
     })
     const allPlaced = [...left,...right].every(k=>placement[k])
@@ -120,7 +143,7 @@ function Board({team, initialScenario}){
     const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'})
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href=url; a.download=`resultado_vmodel_${team.replace(/\\s+/g,'_')}.json`; a.click()
+    a.href=url; a.download=`resultado_vmodel_${team.replace(/\s+/g,'_')}.json`; a.click()
     URL.revokeObjectURL(url)
   }
 
@@ -147,7 +170,7 @@ function Board({team, initialScenario}){
           <div className="small" style={{fontWeight:600, marginBottom:6}}>Desarrollo</div>
           <div className="grid">
             {LEFT_PHASES.map(f=>(
-              <Slot key={f.id} id={f.id} label={f.label} placement={placement} setPlacement={setPlacement} validated={validated}/>
+              <Slot key={f.id} id={f.id} label={f.label} placement={placement} setPlacement={setPlacement} validated={validated} answerMap={answerMap}/>
             ))}
           </div>
         </div>
@@ -172,23 +195,32 @@ function Board({team, initialScenario}){
 
             {validated && (
               <div className="panel" style={{marginTop:10}}>
-                <div className="row" style={{justifyContent:'space-between'}}>
-                  <div><b>Resultado</b></div>
-                  <div>Puntaje: <span className="score">{score}</span></div>
-                </div>
-                <div className="small muted">+1 por cada emparejamiento correcto (4) y +1 si todas las tarjetas están colocadas.</div>
+                {answerMap ? (
+                  <div className="row" style={{justifyContent:'space-between', width:'100%'}}>
+                    <div><b>Resultado</b></div>
+                    <div>Puntaje: <span className="score">{score}</span></div>
+                  </div>
+                ) : (
+                  <div className="small" style={{color:'#b91c1c'}}>
+                    Validación deshabilitada — añade ?map=... (Base64) en la URL (solo docente).
+                  </div>
+                )}
               </div>
             )}
           </div>
 
           <div className="panel help" style={{marginTop:8}}>
             <div style={{fontWeight:600, marginBottom:6}}>Relaciones esperadas</div>
-            <ul className="small">
-              <li>Requerimientos del sistema ↔ Pruebas de aceptación</li>
-              <li>Requisitos de software ↔ Pruebas de sistema</li>
-              <li>Diseño de arquitectura ↔ Pruebas de integración</li>
-              <li>Diseño de módulos ↔ Pruebas unitarias</li>
-            </ul>
+            {answerMap ? (
+              <ul className="small">
+                <li>Requerimientos del sistema ↔ Pruebas de aceptación</li>
+                <li>Requisitos de software ↔ Pruebas de sistema</li>
+                <li>Diseño de arquitectura ↔ Pruebas de integración</li>
+                <li>Diseño de módulos ↔ Pruebas unitarias</li>
+              </ul>
+            ) : (
+              <div className="small muted">(Oculto para estudiantes) — El docente habilita la solución con ?map=... en la URL.</div>
+            )}
           </div>
         </div>
 
@@ -196,7 +228,7 @@ function Board({team, initialScenario}){
           <div className="small" style={{fontWeight:600, marginBottom:6}}>Pruebas</div>
           <div className="grid">
             {RIGHT_TESTS.map(t=>(
-              <Slot key={t.id} id={t.id} label={t.label} placement={placement} setPlacement={setPlacement} validated={validated}/>
+              <Slot key={t.id} id={t.id} label={t.label} placement={placement} setPlacement={setPlacement} validated={validated} answerMap={answerMap}/>
             ))}
           </div>
         </div>

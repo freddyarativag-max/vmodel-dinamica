@@ -1,36 +1,37 @@
-# Dinámica interactiva: Modelo en V (multi-equipo)
+# Dinámica interactiva: Modelo en V (multi-equipo) — v1.1 (parametrizada)
 
-App web para actividades de aula (virtual/presencial) donde equipos arrastran tarjetas y emparejan fases ↔ pruebas del Modelo en V.
+**Sin respuestas quemadas.** El mapa de validación se pasa por URL en Base64 con el parámetro `?map=`.
 
-## Cómo ejecutar (Vite)
-1. Requisitos: Node.js 18+ y npm.
-2. Instalar dependencias:
-   ```bash
-   npm install
-   ```
-3. Levantar en desarrollo:
-   ```bash
-   npm run dev
-   ```
-4. Abrir el enlace que indica Vite (p. ej., http://localhost:5173).
+## Generar el parámetro `?map=` (modo docente)
+En consola del navegador:
+```js
+btoa(JSON.stringify({
+  "req-sis":"t-acep",
+  "req-sw":"t-sis",
+  "dis-arq":"t-int",
+  "dis-mod":"t-unit"
+}))
+```
+Luego abrir la app con:
+```
+http://localhost:5173/?map=TU_CADENA_BASE64
+```
+En producción (Vercel/Netlify/GitHub Pages), el patrón es el mismo.
 
-## Despliegue
-- **Vercel**: Importa el repo → Framework: Vite → Build: `npm run build` → Output: `dist/`.
-- **Netlify**: Build: `npm run build` → Publish dir: `dist/`.
-- **GitHub Pages**: `npm run build` y publica `dist/`.
+## Ejecutar
+```bash
+npm install
+npm run dev
+```
 
-## Uso en clase
-- Agrega equipos (nombre + escenario) y comparte el enlace directo (botón “Abrir link”).
-- Cada equipo arrastra tarjetas desde el banco a los slots de la “V” y pulsa **Validar**.
-- Pueden **exportar** su resultado a JSON.
-- La lista de equipos se guarda en `localStorage`.
+## Build y deploy
+```bash
+npm run build
+# opcional: GitHub Pages
+npm run deploy
+```
+(En Pages, selecciona la rama `gh-pages` en Settings → Pages).
 
-## Puntuación
-- +1 por cada emparejamiento correcto (4).
-- +1 adicional si todas las tarjetas están colocadas.
-
-## Escenarios incluidos
-- Parqueaderos (Centro Comercial), Automotriz (ISO 26262), Médico (Signos vitales), Aeroespacial (Dron).
-
----
-© Actividad educativa — Modelo en V
+## Notas
+- Si **no** hay `?map=...`, la validación queda **deshabilitada** (modo estudiante) y las relaciones esperadas se ocultan.
+- Puedes crear mapas distintos por curso o sesión cambiando el JSON antes de codificar.

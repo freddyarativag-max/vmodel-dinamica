@@ -2,7 +2,7 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
 .container{max-width:1100px;margin:0 auto;padding:24px}.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px}
 .h1{font-size:24px;font-weight:800;margin:0 0 4px}.muted{color:var(--muted);font-size:14px}.grid{display:grid;gap:12px}
-.grid-3{grid-template-columns:1fr 1fr 1fr}.grid-2{grid-template-columns:1fr 1fr}.row{display:flex;gap:8px;flex-wrap:wrap}
+.grid-3{grid-template-columns:1fr 1fr 1fr}.row{display:flex;gap:8px;flex-wrap:wrap}
 input,select,button{border:1px solid var(--border);border-radius:12px;padding:8px 12px;font:inherit}button{background:#fff;cursor:pointer}
 button.primary{background:var(--accent);color:#fff}.slot{min-height:64px;border:2px dashed var(--border);border-radius:14px;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;background:#fff}
 .slot.ok{border-color:var(--ok)}.bank{min-height:180px;border:1px dashed var(--border);padding:12px;border-radius:16px;background:#fff}
