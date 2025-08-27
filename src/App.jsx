@@ -15,11 +15,6 @@ const RIGHT_TESTS = [
   { id: 't-acep', label: 'Pruebas de aceptación' },
 ]
 
-const CORRECT_MAP = {
-  'req-sis': 't-acep',
-  'req-sw': 't-sis',
-  'dis-arq': 't-int',
-  'dis-mod': 't-unit',
 }
 
 const SCENARIOS = [
